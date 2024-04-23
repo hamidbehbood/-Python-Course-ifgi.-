@@ -1,5 +1,5 @@
 from calculator import Calculator
-from Shoping import ShoppingCart 
+from exercise_3.shopping import ShoppingCart 
 def main():
     # This part Create an instance of the Calculator class
     calc = Calculator()
