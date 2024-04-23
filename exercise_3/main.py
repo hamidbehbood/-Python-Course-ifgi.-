@@ -1,9 +1,9 @@
 from calculator import Calculator
-
+from Shoping import ShoppingCart 
 def main():
     # This part Create an instance of the Calculator class
     calc = Calculator()
-
+    
     # Test the input value
     try:
         result1 = calc.sum(7, 5)
@@ -24,6 +24,16 @@ def main():
 
     except ValueError as e:
         print(f"Error: {e}")
+    # Test the Shopping Card Class
+    # Example usage
+    # Create an instance of the ShoppingCart class
+    cart = ShoppingCart()
 
+    # Add items to the shopping cart
+    cart.add_item("Kiwi", 234)
+    cart.add_item("Benana", 289)
+    cart.add_item("Orange", 100)  
+    cart.display_item()
+    cart.remove_item("Orange")
 if __name__ == "__main__":
     main()
