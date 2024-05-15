@@ -54,7 +54,7 @@ if bOk and sDistrict:
             #  Calculate distances to the district centroid
             centroid_selected_district = selection_area.centroid()
             distances = round(centroid_selected_district.distance(QgsGeometry.fromPointXY(school_geometry.asPoint())) / 1000, 2)
-            # Concatenate the name and type of the current school feature, and add double line breaks
+            # Concatenate the name and type of the current school feature,distance to the center and add double line breaks
             school_names += school_feature['NAME'] + ", " + school_feature['SchoolType'] + "\n " +" distantce from the center: " +str(distances) +"km"+"\n\n   "
             
           
