@@ -50,11 +50,19 @@ if bOk and sDistrict:
     
         # Check if the geometry of the current school feature is within the geometry of the selected district
         if school_geometry.within(selection_area):
+            
+            #  Calculate distances to the district centroid
+            centroid_selected_district = selection_area.centroid()
+            distances = round(centroid_selected_district.distance(QgsGeometry.fromPointXY(school_geometry.asPoint())) / 1000, 2)
             # Concatenate the name and type of the current school feature, and add double line breaks
-            school_names += school_feature['NAME'] + ", " + school_feature['SchoolType'] + "\n\n"
+            school_names += school_feature['NAME'] + ", " + school_feature['SchoolType'] + "\n " +" distantce from the center: " +str(distances) +"km"+"\n\n   "
+            
+          
+            
+
+# Call the function
             # Show a message box with the school names
     QMessageBox.information(parent, "Schools in " + sDistrict, school_names)
 elif not bOk:
     # Show a warning message if the user cancels the process
     QMessageBox.warning(parent, "Schools", "User cancelled")
-
