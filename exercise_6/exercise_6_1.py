@@ -18,7 +18,7 @@ layer = QgsVectorLayer("MultiPolygon?crs=epsg:25832", "temp_standard_land_value_
 # dataProvider is required for operations such as adding, updating or deleting data to the layer.
 pr = layer.dataProvider()
 
-# Creating the fields of new layer
+# Creating the fields names of new layer
 fields = [
     QgsField('standard_land_value', QVariant.Double),
     QgsField('type', QVariant.String),
