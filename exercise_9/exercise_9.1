@@ -1,0 +1,31 @@
+import arcpy
+
+# Set the workspace to the path of the file geodatabase
+arcpy.env.workspace = r'D:\print\exercise_arcpy_1.gdb'
+
+# List all point feature classes in the fgdb
+point_fcs = arcpy.ListFeatureClasses(feature_type='Point')
+
+# Define the template feature class (use the first point feature class in the list as the template, if available)
+template_fc = point_fcs[0] if point_fcs else None
+if not template_fc:
+    raise ValueError("No point feature classes found in the geodatabase.")
+
+# Define the name for the new feature class
+active_assets = "ActiveAssets"
+
+# Create the active_assets feature class using the template
+arcpy.CreateFeatureclass_management(arcpy.env.workspace, active_assets, "POINT", template_fc)
+
+# List point feature classes again, for verification
+fc_list = arcpy.ListFeatureClasses(feature_type='Point')
+print(fc_list)
+
+# Iterate over each point feature class
+for fc in fc_list:
+    # Use a search cursor to find rows with 'active' in the 'status' field
+    with arcpy.da.SearchCursor(fc, ['*'], where_clause="status = 'active'") as search_cursor:
+        # Use an insert cursor to insert the active rows into 'active_assets'
+        with arcpy.da.InsertCursor(active_assets, ['*']) as insert_cursor:
+            for row in search_cursor:
+                insert_cursor.insertRow(row)

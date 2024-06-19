@@ -1,0 +1,55 @@
+import arcpy
+import re
+
+# Set workspace
+arcpy.env.workspace = r'D:\print\exercise_arcpy_1.gdb'
+arcpy.env.overwriteOutput = True  # Allows overwriting of existing outputs
+
+# List feature classes that likely represent active assets
+point_active_assets = arcpy.ListFeatureClasses(feature_type='Point', wild_card='Act*')
+print(point_active_assets)
+
+# Buffer distances based on asset type
+buffer_distances = {
+    'mast': '300 Meters',
+    'mobile_antenna': '50 Meters',
+    'building_antenna': '100 Meters'
+}
+
+# Check if the coverage feature class already exists and delete if it does
+coverage = "Coverage"
+if arcpy.Exists(coverage):
+    arcpy.Delete_management(coverage)
+
+# Create a new feature class for coverage
+arcpy.CreateFeatureclass_management(arcpy.env.workspace, coverage, "POLYGON")
+
+# List to keep track of all buffer outputs for eventual merging
+all_buffers = []
+
+for asset_fc in point_active_assets:
+    # Assuming the feature class contains a field 'type' to classify each asset
+    with arcpy.da.SearchCursor(asset_fc, ['OID@', 'SHAPE@', 'type']) as cursor:
+        for oid, shape, asset_type in cursor:
+            if asset_type.lower() in buffer_distances:
+                buffer_distance = buffer_distances[asset_type.lower()]
+                # Generate a valid temporary buffer feature class name
+                safe_type = re.sub('[^A-Za-z0-9]+', '', asset_type)
+                if safe_type.isdigit():  # If result is all digits, prepend with text
+                    safe_type = 'Type_' + safe_type
+                temp_buffer = f"temp_buffer_{safe_type}_{oid}"
+                if not arcpy.Exists(temp_buffer):  # Check if buffer already exists to avoid duplicates
+                    arcpy.Buffer_analysis(shape, temp_buffer, buffer_distance, "FULL", "ROUND", "NONE")
+                    all_buffers.append(temp_buffer)
+
+# Remove duplicates from the buffer list if any
+unique_buffers = list(set(all_buffers))
+
+# Merge all individual buffers into a single feature class called 'Coverage'
+if unique_buffers:
+    arcpy.Merge_management(unique_buffers, coverage)
+    # Clean up temporary buffers
+    for buf in unique_buffers:
+        arcpy.Delete_management(buf)
+
+print("Coverage analysis is complete and stored in 'Coverage' feature class.")
